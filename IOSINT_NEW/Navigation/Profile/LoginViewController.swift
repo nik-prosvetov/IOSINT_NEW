@@ -6,13 +6,7 @@
 import UIKit
 
 final class LoginViewController: UIViewController {
-    private let userService: UserService = {
-#if DEBUG
-        return TestUserService()
-#else
-        return CurrentUserService()
-#endif
-    }()
+    var loginDelegate: LoginViewControllerDelegate?
     
     var loginScrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -167,22 +161,34 @@ final class LoginViewController: UIViewController {
     }
     
     @objc private func touchLoginButton() {
-        guard let login = loginField.text else {
-            let alert = UIAlertController(title: "Error", message: "Enter login", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+        guard let login = loginField.text, !login.isEmpty,
+              let password = passwordField.text, !password.isEmpty else {
+            showAlert(message: "Please enter login and password")
             return
         }
         
-        if let user = userService.getUser(login: login) {
-            let profileVC = ProfileViewController(login: login)
-            profileVC.user = user
-            navigationController?.setViewControllers([profileVC], animated: true)
+        if let delegate = loginDelegate, delegate.check(login: login, password: password) {
+#if DEBUG
+            let service = TestUserService()
+#else
+            let service = CurrentUserService()
+#endif
+            
+            if let user = service.getUser(login: login) {
+                let profileVC = ProfileViewController(user: user)
+                navigationController?.setViewControllers([profileVC], animated: true)
+            } else {
+                showAlert(message: "User not found")
+            }
         } else {
-            let alert = UIAlertController(title: "Error", message: "Invalid login", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+            showAlert(message: "Invalid login or password")
         }
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     @objc private func keyboardShow(notification: NSNotification) {

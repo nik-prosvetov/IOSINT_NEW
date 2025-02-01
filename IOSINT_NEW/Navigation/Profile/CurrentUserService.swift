@@ -6,7 +6,7 @@
 import UIKit
 
 class CurrentUserService: UserService {
-    private let user: User
+    var user: User
     
     init() {
         self.user = User(
@@ -15,9 +15,5 @@ class CurrentUserService: UserService {
             avatar: UIImage(systemName: "person.circle.fill") ?? UIImage(),
             status: "Hello, World!"
         )
-    }
-    
-    func getUser(login: String) -> User? {
-        return login == user.login ? user : nil
     }
 }

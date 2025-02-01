@@ -6,18 +6,14 @@
 import UIKit
 
 class TestUserService: UserService {
-    private let testUser: User
+    var user: User
     
     init() {
-        self.testUser = User(
+        self.user = User(
             login: "debug_user",
             fullName: "Debug Test User",
-            avatar: UIImage(systemName: "person.fill.questionmark")!,
+            avatar: UIImage(systemName: "person.fill.questionmark") ?? UIImage(),
             status: "I am debug user"
         )
-    }
-    
-    func getUser(login: String) -> User? {
-        return login == testUser.login ? testUser : nil
     }
 }

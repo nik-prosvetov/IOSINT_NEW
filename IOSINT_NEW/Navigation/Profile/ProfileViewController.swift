@@ -6,21 +6,14 @@
 import UIKit
 
 final class ProfileViewController: UIViewController {
-    var user: User?
-    private let userService: UserService
-    private let userLogin: String
+    private let user: User
     
     static let headerIdent = "header"
     static let photoIdent = "photo"
     static let postIdent = "post"
     
-    init(login: String) {
-        self.userLogin = login
-#if DEBUG
-        self.userService = TestUserService()
-#else
-        self.userService = CurrentUserService()
-#endif
+    init(user: User) {
+        self.user = user
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -42,10 +35,8 @@ final class ProfileViewController: UIViewController {
         
 #if DEBUG
         view.backgroundColor = .systemRed
-        self.user = userService.getUser(login: userLogin)
 #else
         view.backgroundColor = .systemBackground
-        self.user = userService.getUser(login: userLogin)
 #endif
         
         view.addSubview(Self.postTableView)
@@ -106,9 +97,7 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard section == 0 else { return nil }
         let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: Self.headerIdent) as! ProfileHeaderView
-        if let user = user {
-            headerView.updateUser(user)
-        }
+        headerView.updateUser(user)
         return headerView
     }
     
